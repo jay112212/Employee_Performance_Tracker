@@ -1,6 +1,5 @@
 package com.gtu.employeeperformancetracker.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -9,34 +8,42 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = WarmSand,
+    onPrimary = CanvasDark,
+    secondary = HarborTeal,
+    onSecondary = InkDark,
+    tertiary = SignalOrange,
+    background = CanvasDark,
+    onBackground = InkDark,
+    surface = SurfaceDark,
+    onSurface = InkDark,
+    surfaceVariant = Color(0xFF233848),
+    onSurfaceVariant = MutedDark,
+    outline = OutlineDark
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+    primary = DeepOcean,
     onPrimary = Color.White,
+    secondary = HarborTeal,
     onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    tertiary = SignalOrange,
+    background = CanvasLight,
+    onBackground = InkLight,
+    surface = SurfaceLight,
+    onSurface = InkLight,
+    surfaceVariant = Color(0xFFE5EEF1),
+    onSurfaceVariant = MutedLight,
+    outline = OutlineLight
 )
 
 @Composable
 fun EmployeePerformanceTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {

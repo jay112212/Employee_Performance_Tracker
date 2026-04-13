@@ -6,23 +6,13 @@ import kotlinx.coroutines.flow.Flow
 
 class EmployeeRepository(private val dao: EmployeeDao) {
 
-    // INSERT
-    suspend fun insert(employee: Employee) {
-        dao.insertEmployee(employee)
-    }
+    suspend fun insert(employee: Employee) = dao.insertEmployee(employee)
 
-    // GET ALL
-    fun getAllEmployees(): Flow<List<Employee>> {
-        return dao.getAllEmployees()
-    }
+    suspend fun update(employee: Employee) = dao.updateEmployee(employee)
 
-    // DELETE ✅ ADD THIS
-    suspend fun delete(employee: Employee) {
-        dao.deleteEmployee(employee)
-    }
+    suspend fun delete(employee: Employee) = dao.deleteEmployee(employee)
 
-    // UPDATE (optional for future)
-    suspend fun update(employee: Employee) {
-        dao.updateEmployee(employee)
-    }
+    fun getAllEmployees(): Flow<List<Employee>> = dao.getAllEmployees()
+
+    fun getEmployeeById(id: Int): Flow<Employee?> = dao.getEmployeeById(id)
 }

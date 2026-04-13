@@ -1,8 +1,23 @@
 package com.gtu.employeeperformancetracker.ui.screens.employee
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -14,72 +29,73 @@ fun AddEmployeeScreen(
     navController: NavController,
     viewModel: EmployeeViewModel = viewModel()
 ) {
-
+    var employeeCode by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("") }
-    var dept by remember { mutableStateOf("") }
-
+    var department by remember { mutableStateOf("") }
+    var joiningDate by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var contact by remember { mutableStateOf("") }
+    var profileUri by remember { mutableStateOf("") }
     var error by remember { mutableStateOf("") }
 
     Scaffold { padding ->
-
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             Text(
                 text = "Add Employee",
                 style = MaterialTheme.typography.headlineMedium
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 🔹 Name
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Employee Name") },
-                modifier = Modifier.fillMaxWidth()
+            Text(
+                text = "Capture the full employee profile defined in the PRD.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            OutlinedTextField(value = employeeCode, onValueChange = { employeeCode = it }, label = { Text("Employee ID") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = role, onValueChange = { role = it }, label = { Text("Role") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = department, onValueChange = { department = it }, label = { Text("Department") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = joiningDate, onValueChange = { joiningDate = it }, label = { Text("Joining Date (DD/MM/YYYY)") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = contact, onValueChange = { contact = it }, label = { Text("Contact Number") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = profileUri, onValueChange = { profileUri = it }, label = { Text("Profile Picture URI (optional)") }, modifier = Modifier.fillMaxWidth())
 
-            // 🔹 Role
-            OutlinedTextField(
-                value = role,
-                onValueChange = { role = it },
-                label = { Text("Role") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // 🔹 Department
-            OutlinedTextField(
-                value = dept,
-                onValueChange = { dept = it },
-                label = { Text("Department") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // ❌ Error Message
-            if (error.isNotEmpty()) {
+            if (error.isNotBlank()) {
                 Text(text = error, color = MaterialTheme.colorScheme.error)
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // ✅ Save Button
+            Spacer(modifier = Modifier.height(8.dp))
+
             Button(
                 onClick = {
-                    if (name.isBlank() || role.isBlank() || dept.isBlank()) {
-                        error = "All fields are required"
+                    if (
+                        employeeCode.isBlank() ||
+                        name.isBlank() ||
+                        role.isBlank() ||
+                        department.isBlank() ||
+                        joiningDate.isBlank() ||
+                        email.isBlank() ||
+                        contact.isBlank()
+                    ) {
+                        error = "Please complete all required employee fields."
                     } else {
-                        viewModel.addEmployee(name, role, dept)
-                        navController.popBackStack() // go back after save
+                        viewModel.addEmployee(
+                            employeeCode = employeeCode.trim(),
+                            name = name.trim(),
+                            role = role.trim(),
+                            department = department.trim(),
+                            joiningDate = joiningDate.trim(),
+                            email = email.trim(),
+                            contact = contact.trim(),
+                            profilePictureUri = profileUri.trim()
+                        )
+                        navController.popBackStack()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()

@@ -1,53 +1,59 @@
 package com.gtu.employeeperformancetracker.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.gtu.employeeperformancetracker.data.local.database.AppDatabase
 import com.gtu.employeeperformancetracker.data.local.entity.Employee
 import com.gtu.employeeperformancetracker.data.repository.EmployeeRepository
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class EmployeeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: EmployeeRepository
+    private val repository = EmployeeRepository(
+        AppDatabase.getDatabase(application).employeeDao()
+    )
 
-    // 🔥 Use StateFlow (better than LiveData for Compose)
-    val employees = repositoryFlow(application)
+    val employees: StateFlow<List<Employee>> = repository.getAllEmployees()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
 
-    init {
-        val dao = AppDatabase.getDatabase(application).employeeDao()
-        repository = EmployeeRepository(dao)
-    }
-
-    private fun repositoryFlow(application: Application) =
-        AppDatabase.getDatabase(application)
-            .employeeDao()
-            .getAllEmployees()
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyList()
-            )
-
-    // ✅ Insert Employee
-    fun insertEmployee(employee: Employee) {
+    fun addEmployee(
+        employeeCode: String,
+        name: String,
+        role: String,
+        department: String,
+        joiningDate: String,
+        email: String,
+        contact: String,
+        profilePictureUri: String?
+    ) {
         viewModelScope.launch {
-            repository.insert(employee)
+            repository.insert(
+                Employee(
+                    employeeCode = employeeCode,
+                    name = name,
+                    role = role,
+                    department = department,
+                    joiningDate = joiningDate,
+                    email = email,
+                    contact = contact,
+                    profilePictureUri = profilePictureUri?.takeIf { it.isNotBlank() }
+                )
+            )
         }
     }
 
-    // ✅ Simpler function for UI
-    fun addEmployee(name: String, role: String, dept: String) {
-        insertEmployee(
-            Employee(
-                name = name,
-                role = role,
-                department = dept,
-                rating = 0f
-            )
-        )
+    fun updateEmployee(employee: Employee) {
+        viewModelScope.launch {
+            repository.update(employee)
+        }
     }
 
     fun deleteEmployee(employee: Employee) {

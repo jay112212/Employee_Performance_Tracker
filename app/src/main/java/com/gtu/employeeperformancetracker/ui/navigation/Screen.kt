@@ -1,18 +1,15 @@
 package com.gtu.employeeperformancetracker.ui.navigation
 
 sealed class Screen(val route: String) {
-
-    object Dashboard : Screen("dashboard")
-    object Employees : Screen("employees")
-    object AddEmployee : Screen("add_employee")
-
-    // 🔥 Dynamic route with ID
-    object EmployeeDetail : Screen("employee_detail/{employeeId}") {
+    data object Welcome : Screen("welcome")
+    data object Dashboard : Screen("dashboard")
+    data object Employees : Screen("employees")
+    data object AddEmployee : Screen("add_employee")
+    data object EmployeeDetail : Screen("employee_detail/{employeeId}") {
         fun createRoute(employeeId: Int) = "employee_detail/$employeeId"
     }
-
-    object Tasks : Screen("tasks")
-    object Analytics : Screen("analytics")
-    object Reports : Screen("reports")
-    object Performance : Screen("performance")
+    data object Tasks : Screen("tasks")
+    data object Analytics : Screen("analytics")
+    data object Reports : Screen("reports")
+    data object Performance : Screen("performance")
 }
