@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface EmployeeDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertEmployee(employee: Employee)
+    suspend fun insertEmployee(employee: Employee): Long
 
     @Query("SELECT * FROM employees ORDER BY name ASC")
     fun getAllEmployees(): Flow<List<Employee>>

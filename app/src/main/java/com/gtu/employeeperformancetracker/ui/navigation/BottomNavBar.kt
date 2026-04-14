@@ -15,8 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.gtu.employeeperformancetracker.utils.Roles
 
 private data class BottomNavItem(
     val label: String,
@@ -25,37 +25,75 @@ private data class BottomNavItem(
 )
 
 @Composable
-fun BottomNavBar(navController: NavController) {
+fun BottomNavBar(
+    navController: NavController,
+    userRole: String?
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val items = listOf(
-        BottomNavItem(
-            label = "Dashboard",
-            screen = Screen.Dashboard,
-            icon = { Icon(Icons.Default.Home, contentDescription = null) }
-        ),
-        BottomNavItem(
-            label = "Employees",
-            screen = Screen.Employees,
-            icon = { Icon(Icons.Default.Person, contentDescription = null) }
-        ),
-        BottomNavItem(
-            label = "Tasks",
-            screen = Screen.Tasks,
-            icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
-        ),
-        BottomNavItem(
-            label = "Analytics",
-            screen = Screen.Analytics,
-            icon = { Icon(Icons.Default.Info, contentDescription = null) }
-        ),
-        BottomNavItem(
-            label = "Reports",
-            screen = Screen.Reports,
-            icon = { Icon(Icons.Default.Settings, contentDescription = null) }
+    val items = if (userRole == Roles.EMPLOYEE) {
+        listOf(
+            BottomNavItem(
+                label = "Home",
+                screen = Screen.Dashboard,
+                icon = { Icon(Icons.Default.Home, contentDescription = null) }
+            ),
+            BottomNavItem(
+                label = "Attendance",
+                screen = Screen.Attendance,
+                icon = { Icon(Icons.Default.Info, contentDescription = null) }
+            ),
+            BottomNavItem(
+                label = "Leave",
+                screen = Screen.Leave,
+                icon = { Icon(Icons.Default.Settings, contentDescription = null) }
+            ),
+            BottomNavItem(
+                label = "Tasks",
+                screen = Screen.Tasks,
+                icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
+            ),
+            BottomNavItem(
+                label = "Profile",
+                screen = Screen.Profile,
+                icon = { Icon(Icons.Default.Person, contentDescription = null) }
+            )
         )
-    )
+    } else {
+        listOf(
+            BottomNavItem(
+                label = "Dashboard",
+                screen = Screen.Dashboard,
+                icon = { Icon(Icons.Default.Home, contentDescription = null) }
+            ),
+            BottomNavItem(
+                label = "Employees",
+                screen = Screen.Employees,
+                icon = { Icon(Icons.Default.Person, contentDescription = null) }
+            ),
+            BottomNavItem(
+                label = "Attendance",
+                screen = Screen.Attendance,
+                icon = { Icon(Icons.Default.Info, contentDescription = null) }
+            ),
+            BottomNavItem(
+                label = "Leave",
+                screen = Screen.Leave,
+                icon = { Icon(Icons.Default.Settings, contentDescription = null) }
+            ),
+            BottomNavItem(
+                label = "Tasks",
+                screen = Screen.Tasks,
+                icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
+            ),
+            BottomNavItem(
+                label = "Analytics",
+                screen = Screen.Analytics,
+                icon = { Icon(Icons.Default.Person, contentDescription = null) }
+            )
+        )
+    }
 
     NavigationBar {
         items.forEach { item ->
@@ -63,7 +101,7 @@ fun BottomNavBar(navController: NavController) {
                 selected = currentDestination.isSelected(item.screen),
                 onClick = {
                     navController.navigate(item.screen.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
+                        popUpTo(Screen.Dashboard.route) {
                             saveState = true
                         }
                         launchSingleTop = true

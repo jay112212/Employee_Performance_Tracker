@@ -9,7 +9,11 @@ sealed class Screen(val route: String) {
         fun createRoute(employeeId: Int) = "employee_detail/$employeeId"
     }
     data object Tasks : Screen("tasks")
+    data object Attendance : Screen("attendance")
+    data object Leave : Screen("leave")
     data object Analytics : Screen("analytics")
     data object Reports : Screen("reports")
     data object Performance : Screen("performance")
+    data object Profile : Screen("profile")
+    data object ChangePassword : Screen("change_password")
 }

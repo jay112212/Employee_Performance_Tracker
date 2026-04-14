@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 class EmployeeRepository(private val dao: EmployeeDao) {
 
-    suspend fun insert(employee: Employee) = dao.insertEmployee(employee)
+    suspend fun insert(employee: Employee): Long = dao.insertEmployee(employee)
 
     suspend fun update(employee: Employee) = dao.updateEmployee(employee)
 

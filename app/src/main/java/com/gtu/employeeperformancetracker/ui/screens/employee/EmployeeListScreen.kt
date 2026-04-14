@@ -34,6 +34,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.gtu.employeeperformancetracker.data.local.entity.Employee
 import com.gtu.employeeperformancetracker.ui.navigation.Screen
+import com.gtu.employeeperformancetracker.ui.navigation.sharedAuthViewModel
+import com.gtu.employeeperformancetracker.utils.Roles
+import com.gtu.employeeperformancetracker.viewmodel.AuthViewModel
 import com.gtu.employeeperformancetracker.viewmodel.EmployeeViewModel
 
 @Composable
@@ -41,9 +44,22 @@ fun EmployeeListScreen(
     navController: NavController,
     viewModel: EmployeeViewModel = viewModel()
 ) {
+    val authViewModel: AuthViewModel = sharedAuthViewModel()
+    val currentUser by authViewModel.currentUser.collectAsState()
     val employees by viewModel.employees.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var departmentFilter by remember { mutableStateOf("") }
+
+    if (currentUser?.role == Roles.EMPLOYEE) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Access Restricted", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                "Employee accounts cannot access the employee management roster.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        return
+    }
 
     val filteredEmployees = employees.filter { employee ->
         val matchesQuery = searchQuery.isBlank() ||

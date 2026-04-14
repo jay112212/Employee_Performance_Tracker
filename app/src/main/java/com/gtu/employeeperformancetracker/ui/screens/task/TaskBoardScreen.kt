@@ -37,6 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gtu.employeeperformancetracker.data.local.entity.Employee
 import com.gtu.employeeperformancetracker.data.local.entity.Task
+import com.gtu.employeeperformancetracker.ui.navigation.sharedAuthViewModel
+import com.gtu.employeeperformancetracker.utils.Roles
+import com.gtu.employeeperformancetracker.viewmodel.AuthViewModel
 import com.gtu.employeeperformancetracker.viewmodel.EmployeeViewModel
 import com.gtu.employeeperformancetracker.viewmodel.TaskViewModel
 import java.time.LocalDate
@@ -49,6 +52,8 @@ fun TaskBoardScreen(
     employeeViewModel: EmployeeViewModel = viewModel(),
     taskViewModel: TaskViewModel = viewModel()
 ) {
+    val authViewModel: AuthViewModel = sharedAuthViewModel()
+    val currentUser by authViewModel.currentUser.collectAsState()
     val employees by employeeViewModel.employees.collectAsState()
     val tasks by taskViewModel.tasks.collectAsState()
 
@@ -63,60 +68,69 @@ fun TaskBoardScreen(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
-            Text("Task Board", style = MaterialTheme.typography.headlineMedium)
             Text(
-                "Assign tasks, monitor deadlines, and update progress states.",
+                if (currentUser?.role == Roles.EMPLOYEE) "My Tasks" else "Task Board",
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Text(
+                if (currentUser?.role == Roles.EMPLOYEE) {
+                    "Track your assigned work and update delivery progress."
+                } else {
+                    "Assign tasks, monitor deadlines, and update progress states."
+                },
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
-        item {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text("Assign New Task", fontWeight = FontWeight.SemiBold)
-                    EmployeeSelector(
-                        employees = employees,
-                        selectedEmployeeId = selectedEmployeeId,
-                        onSelected = { selectedEmployeeId = it }
-                    )
-                    OutlinedTextField(
-                        value = description,
-                        onValueChange = { description = it },
-                        label = { Text("Task Description") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = deadline,
-                        onValueChange = { deadline = it },
-                        label = { Text("Deadline (YYYY-MM-DD)") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    SimpleDropdownField("Priority", priority, taskPriorities) { priority = it }
-                    SimpleDropdownField("Status", status, taskStatuses) { status = it }
-                    Button(
-                        onClick = {
-                            if (selectedEmployeeId != 0 && description.isNotBlank()) {
-                                taskViewModel.addTask(
-                                    employeeId = selectedEmployeeId,
-                                    description = description.trim(),
-                                    deadline = deadline.trim(),
-                                    priority = priority,
-                                    assignedDate = LocalDate.now().toString(),
-                                    status = status
-                                )
-                                description = ""
-                                deadline = LocalDate.now().plusDays(7).toString()
-                                priority = taskPriorities[1]
-                                status = taskStatuses[0]
-                            }
-                        },
-                        enabled = employees.isNotEmpty(),
-                        modifier = Modifier.fillMaxWidth()
+        if (currentUser?.role != Roles.EMPLOYEE) {
+            item {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text("Assign Task")
+                        Text("Assign New Task", fontWeight = FontWeight.SemiBold)
+                        EmployeeSelector(
+                            employees = employees,
+                            selectedEmployeeId = selectedEmployeeId,
+                            onSelected = { selectedEmployeeId = it }
+                        )
+                        OutlinedTextField(
+                            value = description,
+                            onValueChange = { description = it },
+                            label = { Text("Task Description") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = deadline,
+                            onValueChange = { deadline = it },
+                            label = { Text("Deadline (YYYY-MM-DD)") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        SimpleDropdownField("Priority", priority, taskPriorities) { priority = it }
+                        SimpleDropdownField("Status", status, taskStatuses) { status = it }
+                        Button(
+                            onClick = {
+                                if (selectedEmployeeId != 0 && description.isNotBlank()) {
+                                    taskViewModel.addTask(
+                                        employeeId = selectedEmployeeId,
+                                        description = description.trim(),
+                                        deadline = deadline.trim(),
+                                        priority = priority,
+                                        assignedDate = LocalDate.now().toString(),
+                                        status = status
+                                    )
+                                    description = ""
+                                    deadline = LocalDate.now().plusDays(7).toString()
+                                    priority = taskPriorities[1]
+                                    status = taskStatuses[0]
+                                }
+                            },
+                            enabled = employees.isNotEmpty(),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Assign Task")
+                        }
                     }
                 }
             }
@@ -126,23 +140,42 @@ fun TaskBoardScreen(
             Text("Assigned Tasks", style = MaterialTheme.typography.titleLarge)
         }
 
-        if (tasks.isEmpty()) {
+        val visibleTasks = if (currentUser?.role == Roles.EMPLOYEE) {
+            tasks.filter { it.employeeId == currentUser?.employeeId }
+        } else {
+            tasks
+        }
+
+        if (visibleTasks.isEmpty()) {
             item { Text("No tasks available yet.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
         } else {
-            items(tasks, key = { it.id }) { task ->
+            items(visibleTasks, key = { it.id }) { task ->
                 TaskItem(
                     task = task,
                     employee = employees.find { it.id == task.employeeId },
                     onAdvanceStatus = {
-                        val nextStatus = when (task.status) {
-                            "Pending" -> "In Progress"
-                            "In Progress" -> "Completed"
-                            "Completed" -> "Reviewed"
-                            else -> "Reviewed"
+                        val nextStatus = if (currentUser?.role == Roles.EMPLOYEE) {
+                            when (task.status) {
+                                "Pending" -> "In Progress"
+                                "In Progress" -> "Completed"
+                                else -> task.status
+                            }
+                        } else {
+                            when (task.status) {
+                                "Pending" -> "In Progress"
+                                "In Progress" -> "Completed"
+                                "Completed" -> "Reviewed"
+                                else -> "Reviewed"
+                            }
                         }
                         taskViewModel.updateTask(task.copy(status = nextStatus))
                     },
-                    onDelete = { taskViewModel.deleteTask(task) }
+                    onDelete = {
+                        if (currentUser?.role != Roles.EMPLOYEE) {
+                            taskViewModel.deleteTask(task)
+                        }
+                    },
+                    employeeMode = currentUser?.role == Roles.EMPLOYEE
                 )
             }
         }
@@ -154,7 +187,8 @@ private fun TaskItem(
     task: Task,
     employee: Employee?,
     onAdvanceStatus: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    employeeMode: Boolean
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -166,15 +200,17 @@ private fun TaskItem(
                     Text(task.description, fontWeight = FontWeight.SemiBold)
                     Text(employee?.name ?: "Employee removed", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete Task")
+                if (!employeeMode) {
+                    IconButton(onClick = onDelete) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete Task")
+                    }
                 }
             }
             Text("${task.priority} priority | ${task.status}")
             Text("Assigned: ${task.assignedDate}")
             Text("Deadline: ${task.deadline}")
             Button(onClick = onAdvanceStatus, modifier = Modifier.fillMaxWidth()) {
-                Text("Advance Status")
+                Text(if (employeeMode) "Update Progress" else "Advance Status")
             }
         }
     }
@@ -217,7 +253,6 @@ fun EmployeeSelector(
         }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimpleDropdownField(

@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.gtu.employeeperformancetracker.ui.navigation.Screen
+import com.gtu.employeeperformancetracker.ui.navigation.sharedAuthViewModel
+import com.gtu.employeeperformancetracker.utils.Roles
+import com.gtu.employeeperformancetracker.viewmodel.AuthViewModel
 import com.gtu.employeeperformancetracker.viewmodel.EmployeeViewModel
 import com.gtu.employeeperformancetracker.viewmodel.PerformanceViewModel
 import com.gtu.employeeperformancetracker.viewmodel.TaskViewModel
@@ -42,9 +45,23 @@ fun EmployeeDetailScreen(
     taskViewModel: TaskViewModel = viewModel(),
     performanceViewModel: PerformanceViewModel = viewModel()
 ) {
+    val authViewModel: AuthViewModel = sharedAuthViewModel()
+    val currentUser by authViewModel.currentUser.collectAsState()
     val employees by employeeViewModel.employees.collectAsState()
     val tasks by taskViewModel.tasks.collectAsState()
     val reviews by performanceViewModel.reviews.collectAsState()
+
+    if (currentUser?.role == Roles.EMPLOYEE) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Access Restricted", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                "Employee accounts cannot edit other employee records.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        return
+    }
+
     val employee = employees.find { it.id == employeeId }
 
     if (employee == null) {

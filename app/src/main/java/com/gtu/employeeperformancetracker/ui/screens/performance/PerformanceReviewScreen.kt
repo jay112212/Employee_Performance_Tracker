@@ -25,7 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.gtu.employeeperformancetracker.ui.navigation.sharedAuthViewModel
 import com.gtu.employeeperformancetracker.ui.screens.task.EmployeeSelector
+import com.gtu.employeeperformancetracker.utils.Roles
+import com.gtu.employeeperformancetracker.viewmodel.AuthViewModel
 import com.gtu.employeeperformancetracker.viewmodel.EmployeeViewModel
 import com.gtu.employeeperformancetracker.viewmodel.PerformanceViewModel
 import java.time.LocalDate
@@ -35,6 +38,8 @@ fun PerformanceReviewScreen(
     employeeViewModel: EmployeeViewModel = viewModel(),
     performanceViewModel: PerformanceViewModel = viewModel()
 ) {
+    val authViewModel: AuthViewModel = sharedAuthViewModel()
+    val currentUser by authViewModel.currentUser.collectAsState()
     val employees by employeeViewModel.employees.collectAsState()
     val reviews by performanceViewModel.reviews.collectAsState()
 
@@ -60,55 +65,57 @@ fun PerformanceReviewScreen(
             )
         }
 
-        item {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text("Add Evaluation", fontWeight = FontWeight.SemiBold)
-                    EmployeeSelector(
-                        employees = employees,
-                        selectedEmployeeId = selectedEmployeeId,
-                        onSelected = { selectedEmployeeId = it }
-                    )
-                    ReviewSlider("Quality of Work", quality) { quality = it }
-                    ReviewSlider("Timeliness", timeliness) { timeliness = it }
-                    ReviewSlider("Attendance", attendance) { attendance = it }
-                    ReviewSlider("Communication", communication) { communication = it }
-                    ReviewSlider("Innovation / Initiative", innovation) { innovation = it }
-                    OutlinedTextField(
-                        value = remarks,
-                        onValueChange = { remarks = it },
-                        label = { Text("Overall Comments") },
-                        modifier = Modifier.fillMaxWidth(),
-                        minLines = 3
-                    )
-                    Text(
-                        text = "Overall Rating: ${String.format("%.1f / 5", overallRating)}",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Button(
-                        onClick = {
-                            if (selectedEmployeeId != 0) {
-                                performanceViewModel.addReview(
-                                    employeeId = selectedEmployeeId,
-                                    reviewDate = LocalDate.now().toString(),
-                                    qualityScore = quality.toInt(),
-                                    timelinessScore = timeliness.toInt(),
-                                    attendanceScore = attendance.toInt(),
-                                    communicationScore = communication.toInt(),
-                                    innovationScore = innovation.toInt(),
-                                    overallRating = overallRating,
-                                    remarks = remarks.trim()
-                                )
-                                remarks = ""
-                            }
-                        },
-                        enabled = employees.isNotEmpty(),
-                        modifier = Modifier.fillMaxWidth()
+        if (currentUser?.role != Roles.EMPLOYEE) {
+            item {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text("Save Review")
+                        Text("Add Evaluation", fontWeight = FontWeight.SemiBold)
+                        EmployeeSelector(
+                            employees = employees,
+                            selectedEmployeeId = selectedEmployeeId,
+                            onSelected = { selectedEmployeeId = it }
+                        )
+                        ReviewSlider("Quality of Work", quality) { quality = it }
+                        ReviewSlider("Timeliness", timeliness) { timeliness = it }
+                        ReviewSlider("Attendance", attendance) { attendance = it }
+                        ReviewSlider("Communication", communication) { communication = it }
+                        ReviewSlider("Innovation / Initiative", innovation) { innovation = it }
+                        OutlinedTextField(
+                            value = remarks,
+                            onValueChange = { remarks = it },
+                            label = { Text("Overall Comments") },
+                            modifier = Modifier.fillMaxWidth(),
+                            minLines = 3
+                        )
+                        Text(
+                            text = "Overall Rating: ${String.format("%.1f / 5", overallRating)}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Button(
+                            onClick = {
+                                if (selectedEmployeeId != 0) {
+                                    performanceViewModel.addReview(
+                                        employeeId = selectedEmployeeId,
+                                        reviewDate = LocalDate.now().toString(),
+                                        qualityScore = quality.toInt(),
+                                        timelinessScore = timeliness.toInt(),
+                                        attendanceScore = attendance.toInt(),
+                                        communicationScore = communication.toInt(),
+                                        innovationScore = innovation.toInt(),
+                                        overallRating = overallRating,
+                                        remarks = remarks.trim()
+                                    )
+                                    remarks = ""
+                                }
+                            },
+                            enabled = employees.isNotEmpty(),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Save Review")
+                        }
                     }
                 }
             }
@@ -118,10 +125,16 @@ fun PerformanceReviewScreen(
             Text("Review History", style = MaterialTheme.typography.titleLarge)
         }
 
-        if (reviews.isEmpty()) {
+        val visibleReviews = if (currentUser?.role == Roles.EMPLOYEE) {
+            reviews.filter { it.employeeId == currentUser?.employeeId }
+        } else {
+            reviews
+        }
+
+        if (visibleReviews.isEmpty()) {
             item { Text("No reviews created yet.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
         } else {
-            items(reviews, key = { it.id }) { review ->
+            items(visibleReviews, key = { it.id }) { review ->
                 val employee = employees.find { it.id == review.employeeId }
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(

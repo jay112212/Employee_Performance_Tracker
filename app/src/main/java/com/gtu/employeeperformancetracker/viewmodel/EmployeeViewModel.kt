@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.gtu.employeeperformancetracker.data.local.database.AppDatabase
 import com.gtu.employeeperformancetracker.data.local.entity.Employee
+import com.gtu.employeeperformancetracker.data.repository.AuthRepository
 import com.gtu.employeeperformancetracker.data.repository.EmployeeRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,8 +14,11 @@ import kotlinx.coroutines.launch
 
 class EmployeeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = EmployeeRepository(
-        AppDatabase.getDatabase(application).employeeDao()
+    private val database = AppDatabase.getDatabase(application)
+    private val repository = EmployeeRepository(database.employeeDao())
+    private val authRepository = AuthRepository(
+        database.authUserDao(),
+        database.sessionDao()
     )
 
     val employees: StateFlow<List<Employee>> = repository.getAllEmployees()
@@ -58,6 +62,7 @@ class EmployeeViewModel(application: Application) : AndroidViewModel(application
 
     fun deleteEmployee(employee: Employee) {
         viewModelScope.launch {
+            authRepository.deleteEmployeeAccount(employee.id)
             repository.delete(employee)
         }
     }

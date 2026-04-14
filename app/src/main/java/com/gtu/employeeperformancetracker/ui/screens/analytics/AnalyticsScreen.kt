@@ -22,6 +22,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.gtu.employeeperformancetracker.ui.navigation.sharedAuthViewModel
+import com.gtu.employeeperformancetracker.utils.Roles
+import com.gtu.employeeperformancetracker.viewmodel.AuthViewModel
 import com.gtu.employeeperformancetracker.viewmodel.EmployeeViewModel
 import com.gtu.employeeperformancetracker.viewmodel.PerformanceViewModel
 import com.gtu.employeeperformancetracker.viewmodel.TaskViewModel
@@ -32,9 +35,22 @@ fun AnalyticsScreen(
     taskViewModel: TaskViewModel = viewModel(),
     performanceViewModel: PerformanceViewModel = viewModel()
 ) {
+    val authViewModel: AuthViewModel = sharedAuthViewModel()
+    val currentUser by authViewModel.currentUser.collectAsState()
     val employees by employeeViewModel.employees.collectAsState()
     val tasks by taskViewModel.tasks.collectAsState()
     val reviews by performanceViewModel.reviews.collectAsState()
+
+    if (currentUser?.role == Roles.EMPLOYEE) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Analytics Unavailable", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                "Detailed team analytics are restricted to Admin and HR accounts.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        return
+    }
 
     val ratingByEmployee = employees.map { employee ->
         val employeeReviews = reviews.filter { it.employeeId == employee.id }
