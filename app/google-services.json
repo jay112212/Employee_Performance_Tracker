@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "231431855481",
+    "project_id": "employee-performance-tra-d3377",
+    "storage_bucket": "employee-performance-tra-d3377.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:231431855481:android:3b048f81614ac0d6c3a3a8",
+        "android_client_info": {
+          "package_name": "com.gtu.employeeperformancetracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLlpKNxZJjxTFnEcUSIXM1kA_o5fyll5g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
