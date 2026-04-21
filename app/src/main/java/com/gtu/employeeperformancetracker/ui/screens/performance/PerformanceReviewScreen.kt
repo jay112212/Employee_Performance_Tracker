@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.gtu.employeeperformancetracker.ui.navigation.sharedAuthViewModel
 import com.gtu.employeeperformancetracker.ui.screens.task.EmployeeSelector
 import com.gtu.employeeperformancetracker.utils.Roles
@@ -35,6 +37,7 @@ import java.time.LocalDate
 
 @Composable
 fun PerformanceReviewScreen(
+    navController: NavController,
     employeeViewModel: EmployeeViewModel = viewModel(),
     performanceViewModel: PerformanceViewModel = viewModel()
 ) {
@@ -58,6 +61,9 @@ fun PerformanceReviewScreen(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
+            TextButton(onClick = { navController.popBackStack() }) {
+                Text("Back")
+            }
             Text("Performance Reviews", style = MaterialTheme.typography.headlineMedium)
             Text(
                 "Evaluate employees on the PRD review metrics and keep a historical record.",

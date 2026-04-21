@@ -23,7 +23,7 @@ fun AppNavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Screen.Welcome.route) {
         composable(Screen.Welcome.route) { WelcomeScreen(navController) }
         composable(Screen.ChangePassword.route) { ChangePasswordScreen() }
-        composable(Screen.Dashboard.route) { DashboardScreen() }
+        composable(Screen.Dashboard.route) { DashboardScreen(navController = navController) }
         composable(Screen.Employees.route) { EmployeeListScreen(navController) }
         composable(Screen.AddEmployee.route) { AddEmployeeScreen(navController) }
         composable(Screen.EmployeeDetail.route) { backStackEntry ->
@@ -39,9 +39,9 @@ fun AppNavGraph(navController: NavHostController) {
         composable(Screen.Tasks.route) { TaskBoardScreen() }
         composable(Screen.Attendance.route) { AttendanceScreen() }
         composable(Screen.Leave.route) { LeaveScreen() }
-        composable(Screen.Analytics.route) { AnalyticsScreen() }
-        composable(Screen.Reports.route) { ReportsScreen() }
-        composable(Screen.Performance.route) { PerformanceReviewScreen() }
+        composable(Screen.Analytics.route) { AnalyticsScreen(navController = navController) }
+        composable(Screen.Reports.route) { ReportsScreen(navController = navController) }
+        composable(Screen.Performance.route) { PerformanceReviewScreen(navController = navController) }
         composable(Screen.Profile.route) { ProfileScreen() }
     }
 }

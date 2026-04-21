@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -110,6 +111,9 @@ fun EmployeeDetailScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            TextButton(onClick = { navController.popBackStack() }) {
+                Text("Back")
+            }
             Text(employee.name, style = MaterialTheme.typography.headlineMedium)
             Text("${employee.employeeCode} | ${employee.role}", color = MaterialTheme.colorScheme.onSurfaceVariant)
 

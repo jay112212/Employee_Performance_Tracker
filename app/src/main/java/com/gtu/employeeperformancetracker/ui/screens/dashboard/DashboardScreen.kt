@@ -19,7 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.gtu.employeeperformancetracker.data.local.entity.Employee
+import com.gtu.employeeperformancetracker.ui.navigation.Screen
 import com.gtu.employeeperformancetracker.ui.navigation.sharedAuthViewModel
 import com.gtu.employeeperformancetracker.utils.Roles
 import com.gtu.employeeperformancetracker.viewmodel.AttendanceViewModel
@@ -27,9 +29,11 @@ import com.gtu.employeeperformancetracker.viewmodel.AuthViewModel
 import com.gtu.employeeperformancetracker.viewmodel.LeaveViewModel
 import com.gtu.employeeperformancetracker.viewmodel.PerformanceViewModel
 import com.gtu.employeeperformancetracker.viewmodel.TaskViewModel
+import java.time.LocalDate
 
 @Composable
 fun DashboardScreen(
+    navController: NavController,
     attendanceViewModel: AttendanceViewModel = viewModel(),
     leaveViewModel: LeaveViewModel = viewModel(),
     taskViewModel: TaskViewModel = viewModel(),
@@ -97,10 +101,19 @@ fun DashboardScreen(
     } else {
         val departmentCount = employees.map { it.department }.distinct().size
         val pendingLeaves = leaveRequests.count { it.status == "Pending" }
-        val todayAttendance = attendanceRecords.count { it.date == java.time.LocalDate.now().toString() }
+        val todayAttendance = attendanceRecords.count { it.date == LocalDate.now().toString() }
         val completionRate = if (tasks.isEmpty()) 0 else {
             ((tasks.count { it.status == "Completed" || it.status == "Reviewed" }.toFloat() / tasks.size.toFloat()) * 100).toInt()
         }
+        val upcomingDeadlines = tasks.filter { task ->
+            val deadline = runCatching { LocalDate.parse(task.deadline) }.getOrNull()
+            deadline != null &&
+                !deadline.isBefore(LocalDate.now()) &&
+                !deadline.isAfter(LocalDate.now().plusDays(3)) &&
+                task.status != "Completed" &&
+                task.status != "Reviewed"
+        }.sortedBy { it.deadline }
+        val unreviewedTasks = tasks.filter { it.status == "Completed" }
         val topPerformers = employees.mapNotNull { employee ->
             val employeeReviews = reviews.filter { it.employeeId == employee.id }
             val average = employeeReviews.map { it.overallRating }.average()
@@ -135,6 +148,22 @@ fun DashboardScreen(
                 }
             }
             item {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text("Quick Actions", fontWeight = FontWeight.SemiBold)
+                        Button(
+                            onClick = { navController.navigate(Screen.Reports.route) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Open Reports")
+                        }
+                    }
+                }
+            }
+            item {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                     StatCard("Employees", employees.size.toString(), Modifier.weight(1f))
                     StatCard("Departments", departmentCount.toString(), Modifier.weight(1f))
@@ -161,6 +190,37 @@ fun DashboardScreen(
                         } else {
                             emailLogs.take(3).forEach { email ->
                                 Text("${email.recipientName} - ${email.recipientEmail}")
+                            }
+                        }
+                    }
+                }
+            }
+            item {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Notifications & Reminders", fontWeight = FontWeight.SemiBold)
+                        if (upcomingDeadlines.isEmpty() && unreviewedTasks.isEmpty()) {
+                            Text("No urgent reminders right now.")
+                        } else {
+                            if (upcomingDeadlines.isNotEmpty()) {
+                                Text(
+                                    "Upcoming deadlines in next 3 days: ${upcomingDeadlines.size}",
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                upcomingDeadlines.take(3).forEach { task ->
+                                    val employeeName = employees.find { it.id == task.employeeId }?.name ?: "Unknown"
+                                    Text("${task.description} - $employeeName - due ${task.deadline}")
+                                }
+                            }
+                            if (unreviewedTasks.isNotEmpty()) {
+                                Text(
+                                    "Completed tasks waiting for review: ${unreviewedTasks.size}",
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                unreviewedTasks.take(3).forEach { task ->
+                                    val employeeName = employees.find { it.id == task.employeeId }?.name ?: "Unknown"
+                                    Text("${task.description} - $employeeName")
+                                }
                             }
                         }
                     }
