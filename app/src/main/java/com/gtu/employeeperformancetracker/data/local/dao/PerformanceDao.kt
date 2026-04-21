@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface PerformanceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertReview(review: Performance)
+    suspend fun insertReview(review: Performance): Long
 
     @Update
     suspend fun updateReview(review: Performance)

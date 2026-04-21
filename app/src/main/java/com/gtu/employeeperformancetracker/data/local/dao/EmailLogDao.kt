@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface EmailLogDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertEmail(emailLog: EmailLog)
+    suspend fun insertEmail(emailLog: EmailLog): Long
 
     @Query("SELECT * FROM email_logs ORDER BY sent_at DESC")
     fun observeEmails(): Flow<List<EmailLog>>

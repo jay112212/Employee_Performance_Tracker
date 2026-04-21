@@ -8,6 +8,10 @@ ksp = "2.0.21-1.0.25"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 coreKtx = "1.18.0"
+firebaseBom = "34.1.0"
+coroutinesPlayServices = "1.8.1"
+googleServices = "4.4.2"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,6 +31,11 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices" }
+
 junit = { group = "junit", name = "junit", version = "4.13.2" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version = "1.2.1" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version = "3.6.1" }
@@ -38,3 +47,5 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+

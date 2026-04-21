@@ -3,7 +3,6 @@ package com.gtu.employeeperformancetracker.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.gtu.employeeperformancetracker.data.local.database.AppDatabase
 import com.gtu.employeeperformancetracker.data.local.entity.LeaveRequest
 import com.gtu.employeeperformancetracker.data.repository.LeaveRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,9 +13,7 @@ import java.time.LocalDateTime
 
 class LeaveViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = LeaveRepository(
-        AppDatabase.getDatabase(application).leaveRequestDao()
-    )
+    private val repository = LeaveRepository()
 
     val leaveRequests: StateFlow<List<LeaveRequest>> = repository.getAllLeaveRequests()
         .stateIn(

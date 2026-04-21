@@ -63,17 +63,17 @@ fun BottomNavBar(
     } else {
         listOf(
             BottomNavItem(
-                label = "Dashboard",
+                label = "Home",
                 screen = Screen.Dashboard,
                 icon = { Icon(Icons.Default.Home, contentDescription = null) }
             ),
             BottomNavItem(
-                label = "Employees",
+                label = "Staff",
                 screen = Screen.Employees,
                 icon = { Icon(Icons.Default.Person, contentDescription = null) }
             ),
             BottomNavItem(
-                label = "Attendance",
+                label = "Attend",
                 screen = Screen.Attendance,
                 icon = { Icon(Icons.Default.Info, contentDescription = null) }
             ),
@@ -88,7 +88,7 @@ fun BottomNavBar(
                 icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) }
             ),
             BottomNavItem(
-                label = "Analytics",
+                label = "Stats",
                 screen = Screen.Analytics,
                 icon = { Icon(Icons.Default.Person, contentDescription = null) }
             )
@@ -109,7 +109,14 @@ fun BottomNavBar(
                     }
                 },
                 icon = item.icon,
-                label = { Text(item.label) }
+                alwaysShowLabel = false,
+                label = {
+                    Text(
+                        text = item.label,
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                }
             )
         }
     }

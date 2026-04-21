@@ -3,7 +3,6 @@ package com.gtu.employeeperformancetracker.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.gtu.employeeperformancetracker.data.local.database.AppDatabase
 import com.gtu.employeeperformancetracker.data.local.entity.AttendanceRecord
 import com.gtu.employeeperformancetracker.data.repository.AttendanceRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,9 +14,7 @@ import java.time.LocalTime
 
 class AttendanceViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = AttendanceRepository(
-        AppDatabase.getDatabase(application).attendanceDao()
-    )
+    private val repository = AttendanceRepository()
 
     val attendanceRecords: StateFlow<List<AttendanceRecord>> = repository.getAllAttendance()
         .stateIn(

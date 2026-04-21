@@ -29,6 +29,9 @@ interface AuthUserDao {
     @Query("SELECT * FROM auth_users WHERE id = :id LIMIT 1")
     fun observeUserById(id: Int): Flow<AuthUser?>
 
+    @Query("SELECT * FROM auth_users WHERE employee_id = :employeeId LIMIT 1")
+    suspend fun getUserByEmployeeId(employeeId: Int): AuthUser?
+
     @Query("DELETE FROM auth_users WHERE employee_id = :employeeId")
     suspend fun deleteByEmployeeId(employeeId: Int)
 }

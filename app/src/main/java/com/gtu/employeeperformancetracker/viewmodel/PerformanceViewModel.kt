@@ -3,7 +3,6 @@ package com.gtu.employeeperformancetracker.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.gtu.employeeperformancetracker.data.local.database.AppDatabase
 import com.gtu.employeeperformancetracker.data.local.entity.Performance
 import com.gtu.employeeperformancetracker.data.repository.PerformanceRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,9 +12,7 @@ import kotlinx.coroutines.launch
 
 class PerformanceViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = PerformanceRepository(
-        AppDatabase.getDatabase(application).performanceDao()
-    )
+    private val repository = PerformanceRepository()
 
     val reviews: StateFlow<List<Performance>> = repository.getAllReviews()
         .stateIn(

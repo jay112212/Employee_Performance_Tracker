@@ -3,7 +3,6 @@ package com.gtu.employeeperformancetracker.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.gtu.employeeperformancetracker.data.local.database.AppDatabase
 import com.gtu.employeeperformancetracker.data.local.entity.Employee
 import com.gtu.employeeperformancetracker.data.repository.AuthRepository
 import com.gtu.employeeperformancetracker.data.repository.EmployeeRepository
@@ -14,12 +13,8 @@ import kotlinx.coroutines.launch
 
 class EmployeeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val database = AppDatabase.getDatabase(application)
-    private val repository = EmployeeRepository(database.employeeDao())
-    private val authRepository = AuthRepository(
-        database.authUserDao(),
-        database.sessionDao()
-    )
+    private val repository = EmployeeRepository()
+    private val authRepository = AuthRepository(application)
 
     val employees: StateFlow<List<Employee>> = repository.getAllEmployees()
         .stateIn(

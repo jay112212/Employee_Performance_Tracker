@@ -12,6 +12,8 @@ import androidx.room.PrimaryKey
 data class AuthUser(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    @ColumnInfo(name = "uid")
+    val uid: String = "",
     @ColumnInfo(name = "employee_id")
     val employeeId: Int? = null,
     @ColumnInfo(name = "display_name")

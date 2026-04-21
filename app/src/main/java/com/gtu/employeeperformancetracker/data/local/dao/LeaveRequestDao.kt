@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface LeaveRequestDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLeaveRequest(request: LeaveRequest)
+    suspend fun insertLeaveRequest(request: LeaveRequest): Long
 
     @Update
     suspend fun updateLeaveRequest(request: LeaveRequest)

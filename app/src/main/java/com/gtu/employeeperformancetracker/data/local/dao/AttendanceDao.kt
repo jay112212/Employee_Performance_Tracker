@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface AttendanceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAttendance(record: AttendanceRecord)
+    suspend fun insertAttendance(record: AttendanceRecord): Long
 
     @Update
     suspend fun updateAttendance(record: AttendanceRecord)

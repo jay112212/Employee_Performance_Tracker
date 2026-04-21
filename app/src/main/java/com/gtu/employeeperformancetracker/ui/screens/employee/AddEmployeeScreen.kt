@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -32,6 +33,7 @@ fun AddEmployeeScreen(
     val authViewModel: AuthViewModel = sharedAuthViewModel()
     val currentUser by authViewModel.currentUser.collectAsState()
     val onboardingNotice by authViewModel.onboardingNotice.collectAsState()
+    val onboardingError by authViewModel.onboardingError.collectAsState()
 
     if (currentUser?.role == Roles.EMPLOYEE) {
         AccessDeniedText("Only Admin and HR can register employees.")
@@ -58,7 +60,7 @@ fun AddEmployeeScreen(
         ) {
             Text("Register Employee", style = MaterialTheme.typography.headlineMedium)
             Text(
-                "Admin / HR creates employee accounts. A mock onboarding email with credentials is generated automatically.",
+                "Admin / HR creates employee accounts in Firebase. An onboarding email with credentials is queued automatically.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
@@ -76,11 +78,24 @@ fun AddEmployeeScreen(
             }
 
             if (onboardingNotice != null) {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (onboardingError) {
+                            MaterialTheme.colorScheme.errorContainer
+                        } else {
+                            MaterialTheme.colorScheme.secondaryContainer
+                        }
+                    )
+                ) {
                     Text(
                         text = onboardingNotice.orEmpty(),
                         modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.secondary
+                        color = if (onboardingError) {
+                            MaterialTheme.colorScheme.onErrorContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSecondaryContainer
+                        }
                     )
                 }
             }
