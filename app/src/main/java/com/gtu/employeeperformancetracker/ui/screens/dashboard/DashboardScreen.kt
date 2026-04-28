@@ -88,15 +88,6 @@ fun DashboardScreen(
                     StatCard("Leave", myLeaves.count { it.status == "Pending" }.toString(), Modifier.weight(1f))
                 }
             }
-            item {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Onboarding Status", fontWeight = FontWeight.SemiBold)
-                        val onboardingMail = emailLogs.firstOrNull { it.recipientEmail == currentUser?.email }
-                        Text(onboardingMail?.body ?: "No onboarding email logged for this account yet.")
-                    }
-                }
-            }
         }
     } else {
         val departmentCount = employees.map { it.department }.distinct().size
